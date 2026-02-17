@@ -1,1 +1,5 @@
-# urfu-cake-shop-cart-service
+# Cart Service
+
+## Назначение
+
+### Сервис управляет корзиной пользователя.

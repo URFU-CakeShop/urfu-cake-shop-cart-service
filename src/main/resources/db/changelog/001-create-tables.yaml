@@ -73,3 +73,30 @@ databaseChangeLog:
                   type: NUMERIC(12, 2)
                   constraints:
                     nullable: false
+
+  - changeSet:
+      id: 3-create-cart-settings
+      author: Kirill
+      changes:
+        - createTable:
+            tableName: cart_settings
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: expiration_hours
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_items_count
+                  type: INT
+                  defaultValueNumeric: 50
+        - insert:
+            tableName: cart_settings
+            columns:
+              - column: { name: "id", value: 1 }
+              - column: { name: "expiration_hours", value: 24 }

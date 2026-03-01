@@ -7,7 +7,9 @@ import ru.urfu.cake.shop.cart.service.dto.AddCartItemDto;
 import ru.urfu.cake.shop.cart.service.dto.ApiResponse;
 import ru.urfu.cake.shop.cart.service.dto.UpdateQuantityDto;
 import ru.urfu.cake.shop.cart.service.entity.Carts;
+import ru.urfu.cake.shop.cart.service.mapper.CartMapper;
 import ru.urfu.cake.shop.cart.service.model.CartsModel;
+import ru.urfu.cake.shop.cart.service.service.CartsService;
 import ru.urfu.cake.shop.cart.service.service.CartsServiceImpl;
 
 import java.util.UUID;
@@ -17,18 +19,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CartController {
 
-    private final CartsServiceImpl cartService;
+    private final CartsService cartService;
+    private final CartMapper cartMapper;
 
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<CartsModel>> getCartByUserId(@PathVariable UUID userId) {
         Carts cart = cartService.getCartByUserId(userId);
-        return ResponseEntity.ok(new ApiResponse<>(true, cartService.toModel(cart), "Корзина получена"));
+        return ResponseEntity.ok(new ApiResponse<>(true, cartMapper.toModel(cart), "Корзина получена"));
     }
 
     @PostMapping("/items")
     public ResponseEntity<ApiResponse<CartsModel>> addItemToCart(@RequestBody AddCartItemDto request) {
         Carts cart = cartService.addItemToCart(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, cartService.toModel(cart), "Товар добавлен"));
+        return ResponseEntity.ok(new ApiResponse<>(true, cartMapper.toModel(cart), "Товар добавлен"));
     }
 
     @PatchMapping("/{userId}/items/{itemId}")
@@ -37,7 +40,7 @@ public class CartController {
             @PathVariable UUID itemId,
             @RequestBody UpdateQuantityDto request) {
         Carts cart = cartService.updateItemQuantity(userId, itemId, request.getQuantity());
-        return ResponseEntity.ok(new ApiResponse<>(true, cartService.toModel(cart), "Количество обновлено"));
+        return ResponseEntity.ok(new ApiResponse<>(true, cartMapper.toModel(cart), "Количество обновлено"));
     }
 
     @DeleteMapping("/{userId}/items/{itemId}")
@@ -45,7 +48,7 @@ public class CartController {
             @PathVariable UUID userId,
             @PathVariable UUID itemId) {
         Carts cart = cartService.removeItemFromCart(userId, itemId);
-        return ResponseEntity.ok(new ApiResponse<>(true, cartService.toModel(cart), "Товар удален"));
+        return ResponseEntity.ok(new ApiResponse<>(true, cartMapper.toModel(cart), "Товар удален"));
     }
 
     @DeleteMapping("/{userId}")

@@ -1,1 +1,3 @@
 rootProject.name = 'cake-shop-cart-service'
+
+includeBuild('../cake-core')

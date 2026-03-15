@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.urfu.cake.shop.cart.service.dto.AddCartItemDto;
 import ru.urfu.cake.shop.cart.service.entity.CartItem;
+import ru.urfu.cake.shop.cart.service.entity.CartSettings;
 import ru.urfu.cake.shop.cart.service.entity.Carts;
 import ru.urfu.cake.shop.cart.service.exception.CartNotFoundException;
 import ru.urfu.cake.shop.cart.service.exception.ItemNotFoundException;
@@ -26,6 +27,8 @@ public class CartsServiceImpl implements CartsService {
 
     private final CartRepository cartRepository;
     private final CartItemsRepository cartItemsRepository;
+    private final CartSettingsService settingsService;
+
 
     @Override
     public Carts getCartByUserId(UUID userId) {
@@ -37,11 +40,12 @@ public class CartsServiceImpl implements CartsService {
     @Transactional
     public Carts addItemToCart(AddCartItemDto dto) {
         Carts cart = getCartByUserId(dto.getUserId());
+        CartSettings settings = settingsService.getSettings();
 
-        // ПРОДЛЕВАЕМ СРОК ЖИЗНИ: каждый раз + 24 часа от текущего момента
-        cart.setExpiresAt(TimeUtil.now().plusDays(1));
+        // Устанавливаем динамическое время жизни из настроек
+        cart.setExpiresAt(TimeUtil.now().plusHours(settings.getExpirationHours()));
 
-        // Ищем, есть ли уже такой товар
+        // Ищем, есть ли товар
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> isSameProduct(item, dto.getProductVariantId(), dto.getCustomCakeId()))
                 .findFirst();
@@ -50,12 +54,17 @@ public class CartsServiceImpl implements CartsService {
             CartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + dto.getQuantity());
         } else {
+            // если добавляем новую позицию
+            if (cart.getItems().size() >= settings.getMaxItemsCount()) {
+                throw new IllegalArgumentException("Достигнут лимит позиций в корзине: " + settings.getMaxItemsCount());
+            }
+
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
             newItem.setProductVariantId(dto.getProductVariantId());
             newItem.setCustomCakeId(dto.getCustomCakeId());
             newItem.setQuantity(dto.getQuantity());
-            newItem.setPrice(BigDecimal.valueOf(1000)); // Временно хардкодим цену пока не готов сервис каталога ;)
+            newItem.setPrice(BigDecimal.valueOf(1000));
 
             cart.getItems().add(newItem);
         }
@@ -117,8 +126,8 @@ public class CartsServiceImpl implements CartsService {
         newCart.setStatus("ACTIVE");
         newCart.setCreatedAt(TimeUtil.now());
 
-
-        newCart.setExpiresAt(TimeUtil.now().plusDays(1)); // Допустим, корзина живет 24 часа
+        Integer hours = settingsService.getSettings().getExpirationHours();
+        newCart.setExpiresAt(TimeUtil.now().plusHours(hours));
 
         newCart.setItems(new ArrayList<>());
         return cartRepository.save(newCart);
@@ -130,32 +139,4 @@ public class CartsServiceImpl implements CartsService {
         return false;
     }
 
-    // --- МАППИНГ ENTITY -> MODEL ---
-
-    public CartsModel toModel(Carts cart) {
-        BigDecimal total = cart.getItems().stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return CartsModel.builder()
-                .id(cart.getId())
-                .userId(cart.getUserId())
-                .status(cart.getStatus())
-                .expiresAt(cart.getExpiresAt())
-                .createdAt(cart.getCreatedAt())
-                .totalAmount(total)
-                .items(cart.getItems().stream().map(this::toItemModel).toList())
-                .build();
-    }
-
-    private CartItemModel toItemModel(CartItem item) {
-        return CartItemModel.builder()
-                .id(item.getId())
-                .cartId(item.getCart().getId())
-                .productVariantId(item.getProductVariantId())
-                .customCakeId(item.getCustomCakeId())
-                .quantity(item.getQuantity())
-                .price(item.getPrice())
-                .build();
-    }
 }

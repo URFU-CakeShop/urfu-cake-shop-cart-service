@@ -1,5 +1,6 @@
 package ru.urfu.cake.shop.cart.service.controller;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,18 +23,21 @@ public class CartController {
     private final CartsService cartService;
     private final CartMapper cartMapper;
 
+    @Timed
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<CartsModel>> getCartByUserId(@PathVariable UUID userId) {
         Carts cart = cartService.getCartByUserId(userId);
         return ResponseEntity.ok(new ApiResponse<>(true, cartMapper.toModel(cart), "Корзина получена"));
     }
 
+    @Timed
     @PostMapping("/items")
     public ResponseEntity<ApiResponse<CartsModel>> addItemToCart(@RequestBody AddCartItemDto request) {
         Carts cart = cartService.addItemToCart(request);
         return ResponseEntity.ok(new ApiResponse<>(true, cartMapper.toModel(cart), "Товар добавлен"));
     }
 
+    @Timed
     @PatchMapping("/{userId}/items/{itemId}")
     public ResponseEntity<ApiResponse<CartsModel>> updateItemQuantity(
             @PathVariable UUID userId,

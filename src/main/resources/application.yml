@@ -31,6 +31,19 @@ cake:
         enable: true
         topic-suffix: ".DLQ"
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'info,prometheus'
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      distribution:
+        percentiles-histogram:
+          "[http.server.requests]": true
+
 logging:
   level:
     org.hibernate.SQL: OFF

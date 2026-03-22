@@ -20,6 +20,17 @@ spring:
     enabled: true
     contexts: development, production
 
+cake:
+  kafka:
+    streams:
+      application-id: cart-service-streams
+      bootstrap-servers: localhost:9092
+      num-stream-threads: 2
+      topology-logging: true
+      dlq:
+        enable: true
+        topic-suffix: ".DLQ"
+
 logging:
   level:
     org.hibernate.SQL: OFF

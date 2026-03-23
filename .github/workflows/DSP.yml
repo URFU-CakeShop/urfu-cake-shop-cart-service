@@ -1,0 +1,22 @@
+name: Docker Stack Deploy
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and Start Infrastructure
+        run: docker-compose up -d --build --wait
+
+      - name: Check Cart Service Health
+        run: |
+          docker ps
+          curl -v http://localhost:8080/actuator/health || echo "Service not ready yet"

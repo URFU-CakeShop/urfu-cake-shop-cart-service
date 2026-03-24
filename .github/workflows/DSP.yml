@@ -21,7 +21,7 @@ jobs:
         with:
           repository: URFU-CakeShop/cake-core
           path: cake-core
-          # token: ${{token}}
+          token: ${{ secrets.STARTERS }}
 
       - name: Build and Start Infrastructure
         run: docker compose -f urfu-cake-shop-cart-service/docker-compose.yaml up -d --build --wait

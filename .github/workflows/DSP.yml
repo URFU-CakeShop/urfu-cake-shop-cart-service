@@ -3,8 +3,6 @@ name: Docker Stack Deploy
 on:
   push:
     branches: [ "dev" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -13,6 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: dev
+          path: urfu-cake-shop-cart-service
           submodules: recursive
 
       - name: Checkout Starter
@@ -23,7 +23,7 @@ jobs:
           clean: false
 
       - name: Build and Start Infrastructure
-        run: docker compose -f ./docker-compose.yaml up -d --build --wait
+        run: docker compose -f urfu-cake-shop-cart-service/docker-compose.yaml up -d --build --wait
 
       - name: Check Cart Service Health
         run: |

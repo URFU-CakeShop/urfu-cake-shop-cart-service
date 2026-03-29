@@ -82,6 +82,7 @@ public class CartController {
         return ResponseEntity.ok(new ru.urfu.cake.shop.cart.service.dto.ApiResponse<>(true, cartMapper.toModel(cart), "Количество обновлено"));
     }
 
+
     @Operation(summary = "Удалить товар из корзины")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Товар удален"),
@@ -95,6 +96,7 @@ public class CartController {
         Carts cart = cartService.removeItemFromCart(userId, itemId);
         return ResponseEntity.ok(new ru.urfu.cake.shop.cart.service.dto.ApiResponse<>(true, cartMapper.toModel(cart), "Товар удален"));
     }
+
 
     @Operation(summary = "Очистить корзину целиком", description = "Удаляет все товары из корзины пользователя.")
     @ApiResponses({

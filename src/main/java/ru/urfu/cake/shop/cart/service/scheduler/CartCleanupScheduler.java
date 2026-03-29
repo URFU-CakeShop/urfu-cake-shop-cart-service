@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.urfu.cake.shop.cart.service.repository.CartRepository;
+import ru.urfu.cake.shop.cart.service.service.metrics.CartCounterService;
 import ru.urfu.cake.shop.cart.service.util.TimeUtil;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 public class CartCleanupScheduler {
 
     private final CartRepository cartRepository;
+    private final CartCounterService counterService;
 
     // срабатывает каждый час
     @Scheduled(fixedRate = 3600000)
@@ -22,7 +24,11 @@ public class CartCleanupScheduler {
         log.info("Запуск очистки просроченных корзин...");
 
         LocalDateTime now = TimeUtil.now();
-        cartRepository.deleteExpiredCarts(now);
+        int deletedCount = cartRepository.deleteExpiredCarts(now);
+
+        if (deletedCount > 0) {
+            counterService.subtract(deletedCount);
+        }
 
         log.info("Очистка завершена.");
     }

@@ -16,5 +16,5 @@ public interface CartRepository extends JpaRepository<Carts, UUID> {
     @Modifying
     @Transactional
     @Query("DELETE FROM Carts c WHERE c.expiresAt < :now")
-    void deleteExpiredCarts(LocalDateTime now);
+    int deleteExpiredCarts(LocalDateTime now);
 }

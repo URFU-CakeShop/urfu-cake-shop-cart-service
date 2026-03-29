@@ -14,6 +14,7 @@ import ru.urfu.cake.shop.cart.service.model.CartItemModel;
 import ru.urfu.cake.shop.cart.service.model.CartsModel;
 import ru.urfu.cake.shop.cart.service.repository.CartItemsRepository;
 import ru.urfu.cake.shop.cart.service.repository.CartRepository;
+import ru.urfu.cake.shop.cart.service.service.metrics.CartCounterService;
 import ru.urfu.cake.shop.cart.service.util.TimeUtil;
 
 import java.math.BigDecimal;
@@ -28,6 +29,7 @@ public class CartsServiceImpl implements CartsService {
     private final CartRepository cartRepository;
     private final CartItemsRepository cartItemsRepository;
     private final CartSettingsService settingsService;
+    private final CartCounterService cartCounterService;
 
 
     @Override
@@ -116,6 +118,7 @@ public class CartsServiceImpl implements CartsService {
         cartItemsRepository.deleteAll(cart.getItems());
         cart.getItems().clear();
         cartRepository.save(cart);
+        cartCounterService.decrement();
     }
 
     // --- Вспомогательные методы ---
@@ -130,6 +133,7 @@ public class CartsServiceImpl implements CartsService {
         newCart.setExpiresAt(TimeUtil.now().plusHours(hours));
 
         newCart.setItems(new ArrayList<>());
+        cartCounterService.increment();
         return cartRepository.save(newCart);
     }
 

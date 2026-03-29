@@ -23,7 +23,7 @@ jobs:
           clean: false
 
       - name: Build and Start Infrastructure
-        run: docker compose -f urfu-cake-shop-cart-service/docker-compose.yaml up -d --build --wait
+        run: docker compose -f urfu-cake-shop-cart-service/docker-compose.yml up -d --build --wait
 
       - name: Check Cart Service Health
         run: |

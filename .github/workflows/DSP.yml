@@ -13,7 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: urfu-cake-shop-cart-service
           submodules: recursive
 
       - name: Checkout Starter
@@ -21,9 +20,10 @@ jobs:
         with:
           repository: URFU-CakeShop/cake-core
           path: cake-core
+          clean: false
 
       - name: Build and Start Infrastructure
-        run: docker compose -f urfu-cake-shop-cart-service/docker-compose.yaml up -d --build --wait
+        run: docker compose -f ./docker-compose.yaml up -d --build --wait
 
       - name: Check Cart Service Health
         run: |

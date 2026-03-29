@@ -1,6 +1,7 @@
 package ru.urfu.cake.shop.cart.service.controller;
 
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +18,19 @@ public class CartSettingsController {
 
     private final CartSettingsService settingsService;
 
+
+    @Timed
     @GetMapping
     public ResponseEntity<ApiResponse<CartSettingsModel>> getSettings() {
         return ResponseEntity.ok(new ApiResponse<>(true, settingsService.getSettingsModel(), "Настройки получены"));
     }
-
+    @Timed
     @PatchMapping("/expiration")
     public ResponseEntity<ApiResponse<Void>> updateExpiration(@RequestParam int hours) {
         settingsService.updateExpiration(hours);
         return ResponseEntity.ok(new ApiResponse<>(true, null, "Время жизни обновлено"));
     }
-
+    @Timed
     @PatchMapping("/max-count")
     public ResponseEntity<ApiResponse<Void>> updateMaxCount(@RequestParam int count) {
         settingsService.updateMaxCartCount(count);

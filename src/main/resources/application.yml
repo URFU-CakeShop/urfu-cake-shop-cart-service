@@ -5,7 +5,7 @@ spring:
     allow-bean-definition-overriding: true
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/cart
+    url: jdbc:postgresql://localhost:5433/cart
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -48,3 +48,6 @@ logging:
   level:
     org.hibernate.SQL: OFF
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
+
+product-service:
+  url: ${SPRING_PRODUCT_SERVICE_URL:http://localhost:8082}

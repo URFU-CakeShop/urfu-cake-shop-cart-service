@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d cart" ]
       interval: 5s
@@ -16,6 +16,7 @@ services:
       retries: 5
     networks:
       - monitoring
+      - cake-shop-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
@@ -27,6 +28,7 @@ services:
       bash -c "export KAFKA_OPTS='-Dzookeeper.admin.enableServer=false' && /etc/confluent/docker/run"
     networks:
       - monitoring
+      - cake-shop-network
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
@@ -45,6 +47,7 @@ services:
       KAFKA_ENABLE_KRAFT: "false"
     networks:
       - monitoring
+      - cake-shop-network
 
   cart-service:
     build:
@@ -63,8 +66,10 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       CAKE_KAFKA_STREAMS_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_PRODUCT_SERVICE_URL: http://product-catalog-service:8080
     networks:
       - monitoring
+      - cake-shop-network
 
   prometheus:
     image: prom/prometheus:latest
@@ -75,6 +80,7 @@ services:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - monitoring
+      - cake-shop-network
 
   grafana:
     image: grafana/grafana:latest
@@ -86,7 +92,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - monitoring
+      - cake-shop-network
 
 networks:
   monitoring:
     driver: bridge
+  cake-shop-network:
+    external: true

@@ -3,6 +3,7 @@ package ru.urfu.cake.shop.cart.service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.urfu.cake.shop.cart.service.client.ProductClient;
 import ru.urfu.cake.shop.cart.service.dto.AddCartItemDto;
 import ru.urfu.cake.shop.cart.service.entity.CartItem;
 import ru.urfu.cake.shop.cart.service.entity.CartSettings;
@@ -30,6 +31,7 @@ public class CartsServiceImpl implements CartsService {
     private final CartItemsRepository cartItemsRepository;
     private final CartSettingsService settingsService;
     private final CartCounterService cartCounterService;
+    private final ProductClient productClient;
 
 
     @Override
@@ -62,11 +64,12 @@ public class CartsServiceImpl implements CartsService {
             }
 
             CartItem newItem = new CartItem();
+            UUID productVariantId = dto.getProductVariantId();
             newItem.setCart(cart);
-            newItem.setProductVariantId(dto.getProductVariantId());
+            newItem.setProductVariantId(productVariantId);
             newItem.setCustomCakeId(dto.getCustomCakeId());
             newItem.setQuantity(dto.getQuantity());
-            newItem.setPrice(BigDecimal.valueOf(1000));
+            newItem.setPrice(productClient.getPrice(productVariantId));
 
             cart.getItems().add(newItem);
         }

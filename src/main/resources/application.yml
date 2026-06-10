@@ -50,4 +50,4 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
 
 product-service:
-  url: ${SPRING_PRODUCT_SERVICE_URL:http://localhost:8082}
+  url: ${SPRING_PRODUCT_SERVICE_URL:http://localhost:8080}

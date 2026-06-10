@@ -3,10 +3,37 @@ name: Docker Stack Deploy
 on:
   push:
     branches: [ "dev" ]
+    paths:
+      - 'build.gradle'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cart
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/cart
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PRODUCT_SERVICE_URL: http://product-catalog-service:8080
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -14,17 +41,49 @@ jobs:
           path: urfu-cake-shop-cart-service
           submodules: recursive
 
-      - name: Checkout Starter
+      - name: Checkout cake-core
         uses: actions/checkout@v4
         with:
           repository: URFU-CakeShop/cake-core
           path: cake-core
           clean: false
 
-      - name: Build and Start Infrastructure
-        run: docker compose -f urfu-cake-shop-cart-service/docker-compose.yml up -d --build --wait
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-      - name: Check Cart Service Health
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Run tests
         run: |
-          docker ps
-          curl -v http://localhost:8080/actuator/health || echo "Service not ready yet"
+          cd urfu-cake-shop-cart-service
+          chmod +x gradlew
+          ./gradlew test \
+            --tests "ru.urfu.cake.shop.cart.service.client.*" \
+            --tests "ru.urfu.cake.shop.cart.service.mapper.*" \
+            --tests "ru.urfu.cake.shop.cart.service.service.*"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: urfu-cakeshop
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          IMAGE=ghcr.io/urfu-cakeshop/cake-shop-cart-service
+          docker build \
+            -t $IMAGE:latest \
+            -t $IMAGE:${GITHUB_SHA::7} \
+            -f urfu-cake-shop-cart-service/Dockerfile \
+            .
+
+      - name: Push Docker image
+        run: |
+          IMAGE=ghcr.io/urfu-cakeshop/cake-shop-cart-service
+          docker push $IMAGE:latest
+          docker push $IMAGE:${GITHUB_SHA::7}

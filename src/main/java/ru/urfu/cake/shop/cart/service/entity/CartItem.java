@@ -3,7 +3,6 @@ package ru.urfu.cake.shop.cart.service.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.UuidGenerator;
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -26,7 +25,4 @@ public class CartItem {
 
     @Column(nullable = false)
     private Integer quantity;
-
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal price;
 }

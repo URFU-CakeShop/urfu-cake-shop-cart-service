@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4-drop-price-from-cart-items
+      author: Kirill
+      changes:
+        - dropColumn:
+            tableName: cart_items
+            columns:
+              - column:
+                  name: price

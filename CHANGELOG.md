@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [1.5.0] - 2026-06-10
+### Added
+- Comprehensive test coverage: ProductClient, CartMapper, CartsServiceImpl, CartSettingsServiceImpl (36 tests total).
+
+### Changed
+- Price is no longer stored in `CartItem` entity — column dropped from DB. Price is fetched live from Product Catalog via `ProductClient` at mapping time.
+- CI/CD workflow (`DSP.yml`): runs only on version change (`build.gradle`), executes targeted tests.
+
+---
 ## [1.4.0] - 2026-04-12
 ### Added
 - The price of items is not hardcoded, now is taken from the product service API.

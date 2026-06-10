@@ -3,7 +3,6 @@ package ru.urfu.cake.shop.cart.service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.urfu.cake.shop.cart.service.client.ProductClient;
 import ru.urfu.cake.shop.cart.service.dto.AddCartItemDto;
 import ru.urfu.cake.shop.cart.service.entity.CartItem;
 import ru.urfu.cake.shop.cart.service.entity.CartSettings;
@@ -11,14 +10,11 @@ import ru.urfu.cake.shop.cart.service.entity.Carts;
 import ru.urfu.cake.shop.cart.service.exception.CartNotFoundException;
 import ru.urfu.cake.shop.cart.service.exception.ItemNotFoundException;
 import ru.urfu.cake.shop.cart.service.exception.NotYourCartException;
-import ru.urfu.cake.shop.cart.service.model.CartItemModel;
-import ru.urfu.cake.shop.cart.service.model.CartsModel;
 import ru.urfu.cake.shop.cart.service.repository.CartItemsRepository;
 import ru.urfu.cake.shop.cart.service.repository.CartRepository;
 import ru.urfu.cake.shop.cart.service.service.metrics.CartCounterService;
 import ru.urfu.cake.shop.cart.service.util.TimeUtil;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,7 +27,6 @@ public class CartsServiceImpl implements CartsService {
     private final CartItemsRepository cartItemsRepository;
     private final CartSettingsService settingsService;
     private final CartCounterService cartCounterService;
-    private final ProductClient productClient;
 
 
     @Override
@@ -69,7 +64,6 @@ public class CartsServiceImpl implements CartsService {
             newItem.setProductVariantId(productVariantId);
             newItem.setCustomCakeId(dto.getCustomCakeId());
             newItem.setQuantity(dto.getQuantity());
-            newItem.setPrice(productClient.getPrice(productVariantId));
 
             cart.getItems().add(newItem);
         }

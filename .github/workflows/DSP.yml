@@ -45,6 +45,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: URFU-CakeShop/cake-core
+          ref: for-notification-service
           path: cake-core
           clean: false
 
